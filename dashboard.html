@@ -64,32 +64,174 @@
     }
     .actions button {
       margin-right: 10px;
-      padding: 5px 10px;
-      font-size: 14px;
     }
-    .error, .success {
+    #message {
       margin: 10px 0;
       padding: 10px;
       border-radius: 5px;
       font-weight: bold;
     }
-    .error {
+    #message.error {
       background-color: #e53935;
       color: white;
     }
-    .success {
+    #message.success {
       background-color: #4caf50;
       color: white;
     }
   </style>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbPMyrdTObOze78aM9G9tetqBCVjIqx6g",
+      authDomain: "x1nxadminpage.firebaseapp.com",
+      projectId: "x1nxadminpage",
+      storageBucket: "x1nxadminpage.appspot.com",
+      messagingSenderId: "541321033814",
+      appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const addUserForm = document.getElementById("addUserForm");
+    const userIdInput = document.getElementById("userId");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const expiryDateInput = document.getElementById("expiryDate");
+    const deviceLimitInput = document.getElementById("deviceLimit");
+    const messageDiv = document.getElementById("message");
+    const usersTableBody = document.getElementById("usersTableBody");
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = "index.html";
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    });
+
+    async function loadUsers() {
+      usersTableBody.innerHTML = "";
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        querySnapshot.forEach(docSnap => {
+          const user = docSnap.data();
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${user.username || ""}</td>
+            <td>${user.expiryDate || ""}</td>
+            <td>${user.deviceLimit || ""}</td>
+            <td class="actions">
+              <button onclick="editUser('${docSnap.id}')">Edit</button>
+              <button onclick="deleteUser('${docSnap.id}')">Delete</button>
+            </td>
+          `;
+          usersTableBody.appendChild(tr);
+        });
+      } catch (error) {
+        showMessage("Error loading users: " + error.message, "error");
+      }
+    }
+
+    function showMessage(msg, type) {
+      messageDiv.textContent = msg;
+      messageDiv.className = type;
+      setTimeout(() => {
+        messageDiv.textContent = "";
+        messageDiv.className = "";
+      }, 4000);
+    }
+
+    addUserForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const id = userIdInput.value;
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+      const expiryDate = expiryDateInput.value;
+      const deviceLimit = deviceLimitInput.value;
+
+      if (!username || !password || !expiryDate || !deviceLimit) {
+        showMessage("সব তথ্য পূরণ করুন", "error");
+        return;
+      }
+
+      try {
+        if (id) {
+          // Update user document (password cannot be updated here)
+          await updateDoc(doc(db, "users", id), {
+            username,
+            expiryDate,
+            deviceLimit
+          });
+          showMessage("User updated successfully", "success");
+          addUserForm.reset();
+          userIdInput.value = "";
+        } else {
+          // Create new user document
+          // Note: Password is saved in Firestore, NOT Firebase Auth
+          await setDoc(doc(db, "users", username), {
+            username,
+            password,
+            expiryDate,
+            deviceLimit
+          });
+          showMessage("User added successfully", "success");
+          addUserForm.reset();
+        }
+        loadUsers();
+      } catch (error) {
+        showMessage("Error: " + error.message, "error");
+      }
+    });
+
+    window.editUser = async function(id) {
+      try {
+        const docSnap = await getDocs(doc(db, "users", id));
+        if (docSnap.exists()) {
+          const user = docSnap.data();
+          userIdInput.value = id;
+          usernameInput.value = user.username || "";
+          passwordInput.value = user.password || "";
+          expiryDateInput.value = user.expiryDate || "";
+          deviceLimitInput.value = user.deviceLimit || "";
+          document.getElementById("submitBtn").textContent = "Update User";
+        } else {
+          showMessage("User not found", "error");
+        }
+      } catch (error) {
+        showMessage("Error fetching user: " + error.message, "error");
+      }
+    };
+
+    window.deleteUser = async function(id) {
+      if (confirm("Are you sure you want to delete this user?")) {
+        try {
+          await deleteDoc(doc(db, "users", id));
+          showMessage("User deleted successfully", "success");
+          loadUsers();
+        } catch (error) {
+          showMessage("Error deleting user: " + error.message, "error");
+        }
+      }
+    };
+
+    // Initial load
+    loadUsers();
+  </script>
 </head>
 <body>
-
 <header>
   <h1>x1nx Admin Panel - Dashboard</h1>
   <button id="logoutBtn">Logout</button>
@@ -126,165 +268,5 @@
     <tbody id="usersTableBody"></tbody>
   </table>
 </section>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBvUY6RwKe7oHxg_hFzO3pX8PYbHwsvFgQ",
-    authDomain: "x1nx-admin-page.firebaseapp.com",
-    projectId: "x1nx-admin-page",
-    storageBucket: "x1nx-admin-page.appspot.com",
-    messagingSenderId: "541321033814",
-    appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-
-  const logoutBtn = document.getElementById("logoutBtn");
-  const addUserForm = document.getElementById("addUserForm");
-  const userIdInput = document.getElementById("userId");
-  const usernameInput = document.getElementById("username");
-  const passwordInput = document.getElementById("password");
-  const expiryDateInput = document.getElementById("expiryDate");
-  const deviceLimitInput = document.getElementById("deviceLimit");
-  const messageDiv = document.getElementById("message");
-  const usersTableBody = document.getElementById("usersTableBody");
-  const submitBtn = document.getElementById("submitBtn");
-
-  // Redirect if not logged in
-  auth.onAuthStateChanged(user => {
-    if (!user) {
-      window.location.href = "index.html";
-    }
-  });
-
-  logoutBtn.addEventListener("click", () => {
-    auth.signOut().then(() => {
-      window.location.href = "index.html";
-    });
-  });
-
-  // Load users from Firestore
-  function loadUsers() {
-    usersTableBody.innerHTML = "";
-    db.collection("users").get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {
-          const user = doc.data();
-          const tr = document.createElement("tr");
-
-          tr.innerHTML = `
-            <td>${user.username || ""}</td>
-            <td>${user.expiryDate || ""}</td>
-            <td>${user.deviceLimit || ""}</td>
-            <td class="actions">
-              <button onclick="editUser('${doc.id}')">Edit</button>
-              <button onclick="deleteUser('${doc.id}')">Delete</button>
-            </td>
-          `;
-          usersTableBody.appendChild(tr);
-        });
-      })
-      .catch(err => {
-        showMessage("Error loading users: " + err.message, "error");
-      });
-  }
-
-  // Show messages
-  function showMessage(msg, type) {
-    messageDiv.textContent = msg;
-    messageDiv.className = type === "error" ? "error" : "success";
-    setTimeout(() => {
-      messageDiv.textContent = "";
-      messageDiv.className = "";
-    }, 4000);
-  }
-
-  // Add or update user
-  addUserForm.addEventListener("submit", e => {
-    e.preventDefault();
-
-    const id = userIdInput.value;
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-    const expiryDate = expiryDateInput.value;
-    const deviceLimit = deviceLimitInput.value;
-
-    if (!username || !password || !expiryDate || !deviceLimit) {
-      showMessage("Please fill all fields", "error");
-      return;
-    }
-
-    if (id) {
-      // Update user in Firestore only (password update not handled here)
-      db.collection("users").doc(id).update({
-        username,
-        expiryDate,
-        deviceLimit
-      }).then(() => {
-        showMessage("User updated successfully", "success");
-        addUserForm.reset();
-        userIdInput.value = "";
-        submitBtn.textContent = "Add User";
-        loadUsers();
-      }).catch(err => {
-        showMessage("Error updating user: " + err.message, "error");
-      });
-    } else {
-      // Add new user to Firestore
-      // Password is saved here for injector login purpose (not Firebase Auth password)
-      db.collection("users").add({
-        username,
-        password,
-        expiryDate,
-        deviceLimit
-      }).then(() => {
-        showMessage("User added successfully", "success");
-        addUserForm.reset();
-        loadUsers();
-      }).catch(err => {
-        showMessage("Error adding user: " + err.message, "error");
-      });
-    }
-  });
-
-  // Edit user
-  function editUser(id) {
-    db.collection("users").doc(id).get()
-      .then(doc => {
-        if (doc.exists) {
-          const user = doc.data();
-          userIdInput.value = id;
-          usernameInput.value = user.username || "";
-          passwordInput.value = user.password || "";
-          expiryDateInput.value = user.expiryDate || "";
-          deviceLimitInput.value = user.deviceLimit || "1";
-          submitBtn.textContent = "Update User";
-        }
-      })
-      .catch(err => {
-        showMessage("Error fetching user: " + err.message, "error");
-      });
-  }
-
-  // Delete user
-  function deleteUser(id) {
-    if (confirm("Are you sure you want to delete this user?")) {
-      db.collection("users").doc(id).delete()
-        .then(() => {
-          showMessage("User deleted successfully", "success");
-          loadUsers();
-        })
-        .catch(err => {
-          showMessage("Error deleting user: " + err.message, "error");
-        });
-    }
-  }
-
-  // Initial load users
-  loadUsers();
-</script>
-
 </body>
 </html>

@@ -3,103 +3,103 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>x1nx Admin Login</title>
+  <title>x1nx Admin Panel - Login</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #121212;
+      background: #121212;
       color: white;
+      font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
     }
-    .login-box {
-      background-color: #1e1e1e;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #00ffcc;
+    #loginForm {
+      background: #222;
+      padding: 20px;
+      border-radius: 8px;
       width: 320px;
-      text-align: center;
+      box-sizing: border-box;
     }
     input {
       width: 100%;
       padding: 10px;
-      margin: 15px 0;
-      border-radius: 5px;
+      margin: 12px 0;
+      border-radius: 4px;
       border: none;
       font-size: 16px;
     }
     button {
       width: 100%;
       padding: 12px;
-      background-color: #00ffcc;
+      background: #00c853;
+      border: none;
       color: black;
       font-weight: bold;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
       font-size: 18px;
+      border-radius: 4px;
+      cursor: pointer;
     }
     button:hover {
-      background-color: #00cc99;
+      background: #00e676;
     }
-    #error-msg {
-      color: #ff5555;
+    #message {
       margin-top: 10px;
-      height: 18px;
+      text-align: center;
+      color: #ff4444;
     }
   </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbPMyrdTObOze78aM9G9tetqBCVjIqx6g",
+      authDomain: "x1nxadminpage.firebaseapp.com",
+      projectId: "x1nxadminpage",
+      storageBucket: "x1nxadminpage.appspot.com",
+      messagingSenderId: "541321033814",
+      appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const messageDiv = document.getElementById("message");
+
+    window.onload = () => {
+      onAuthStateChanged(auth, user => {
+        if (user) {
+          window.location.href = "dashboard.html";
+        }
+      });
+    };
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      messageDiv.textContent = "";
+
+      const email = e.target.email.value.trim();
+      const password = e.target.password.value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        messageDiv.textContent = "Login Failed: " + error.message;
+      }
+    });
+  </script>
 </head>
 <body>
-
-<div class="login-box">
-  <h2>x1nx Admin Login</h2>
-  <input type="email" id="email" placeholder="Admin Email" required />
-  <input type="password" id="password" placeholder="Password" required />
-  <button onclick="login()">Login</button>
-  <div id="error-msg"></div>
-</div>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBvUY6RwKe7oHxg_hFzO3pX8PYbHwsvFgQ",
-    authDomain: "x1nx-admin-page.firebaseapp.com",
-    projectId: "x1nx-admin-page",
-    storageBucket: "x1nx-admin-page.appspot.com",
-    messagingSenderId: "541321033814",
-    appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-
-  function login() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    const errorMsg = document.getElementById("error-msg");
-    errorMsg.textContent = "";
-
-    if (!email || !password) {
-      errorMsg.textContent = "Email and Password are required!";
-      return;
-    }
-
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        window.location.href = "dashboard.html";
-      })
-      .catch(error => {
-        errorMsg.textContent = "Login Failed: " + error.message;
-      });
-  }
-</script>
-
+  <form id="loginForm">
+    <h2 style="text-align:center;">x1nx Admin Panel Login</h2>
+    <input type="email" name="email" placeholder="Admin Email" required />
+    <input type="password" name="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+    <div id="message"></div>
+  </form>
 </body>
 </html>
