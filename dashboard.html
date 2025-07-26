@@ -2,271 +2,413 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>x1nx Admin Panel - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Management Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #121212;
-      color: white;
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      padding: 20px;
+      background: #f4f6f9;
+      color: #333;
     }
+    
+    /* Header Styles */
     header {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      padding: 15px 30px;
+      color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    h1 {
-      margin: 0;
-      font-size: 24px;
+    
+    .header-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    button {
-      background-color: #00c853;
-      border: none;
-      color: black;
-      padding: 10px 16px;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 4px;
+    
+    .header-title i {
+      font-size: 1.3rem;
     }
-    button:hover {
-      background-color: #00e676;
-    }
-    form {
-      background-color: #222;
-      padding: 15px;
+    
+    .back-link {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 15px;
       border-radius: 6px;
-      margin-bottom: 30px;
-      max-width: 400px;
+      transition: background-color 0.2s;
     }
-    form input, form select {
+    
+    .back-link:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .header-container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    /* Search Section */
+    .search-section {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+      margin: 25px auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      max-width: 1200px;
+    }
+    
+    .search-bar-container {
+      position: relative;
+      flex-grow: 1;
+      max-width: 500px;
+    }
+    
+    .search-bar-container i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+    }
+    
+    .search-bar-container input {
+      width: 100%;
+      padding: 12px 20px 12px 45px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      font-size: 1rem;
+      transition: all 0.3s;
+      background-color: #f8f9fa;
+    }
+    
+    .search-bar-container input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+      background-color: white;
+    }
+    
+    .stats-card {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      padding: 15px;
+      border-radius: 8px;
+      min-width: 150px;
+      text-align: center;
+      border-left: 4px solid #007bff;
+    }
+    
+    .stats-card h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #495057;
+    }
+    
+    .stats-card p {
+      margin: 5px 0 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #007bff;
+    }
+    
+    /* Main Content */
+    .container {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* User Cards */
+    .user-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .user-card h3 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .user-card h3 span {
+      font-size: 0.9rem;
+      color: #666;
+      font-weight: normal;
+    }
+    
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 500;
+    }
+    
+    input, select {
       width: 100%;
       padding: 10px;
-      margin: 8px 0;
-      border-radius: 4px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+    
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      margin-right: 10px;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background-color: #28a745;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: #218838;
+      transform: translateY(-1px);
+    }
+    
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #c82333;
+      transform: translateY(-1px);
+    }
+    
+    .password-container {
+      position: relative;
+    }
+    
+    .password-container input {
+      padding-right: 40px;
+    }
+    
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 10px;
+      cursor: pointer;
+      color: #666;
+      background: none;
       border: none;
       font-size: 16px;
+      padding: 0;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #444;
-      text-align: left;
-    }
-    tr:hover {
-      background-color: #333;
-    }
-    .actions button {
-      margin-right: 10px;
-    }
-    #message {
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-    #message.error {
-      background-color: #e53935;
-      color: white;
-    }
-    #message.success {
-      background-color: #4caf50;
-      color: white;
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .search-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .search-bar-container {
+        max-width: 100%;
+      }
+      
+      .stats-card {
+        width: 100%;
+      }
+      
+      .header-title {
+        font-size: 1.2rem;
+      }
     }
   </style>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-    import { getAuth, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBbPMyrdTObOze78aM9G9tetqBCVjIqx6g",
-      authDomain: "x1nxadminpage.firebaseapp.com",
-      projectId: "x1nxadminpage",
-      storageBucket: "x1nxadminpage.appspot.com",
-      messagingSenderId: "541321033814",
-      appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    const logoutBtn = document.getElementById("logoutBtn");
-    const addUserForm = document.getElementById("addUserForm");
-    const userIdInput = document.getElementById("userId");
-    const usernameInput = document.getElementById("username");
-    const passwordInput = document.getElementById("password");
-    const expiryDateInput = document.getElementById("expiryDate");
-    const deviceLimitInput = document.getElementById("deviceLimit");
-    const messageDiv = document.getElementById("message");
-    const usersTableBody = document.getElementById("usersTableBody");
-
-    onAuthStateChanged(auth, user => {
-      if (!user) {
-        window.location.href = "index.html";
-      }
-    });
-
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth).then(() => {
-        window.location.href = "index.html";
-      });
-    });
-
-    async function loadUsers() {
-      usersTableBody.innerHTML = "";
-      try {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        querySnapshot.forEach(docSnap => {
-          const user = docSnap.data();
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${user.username || ""}</td>
-            <td>${user.expiryDate || ""}</td>
-            <td>${user.deviceLimit || ""}</td>
-            <td class="actions">
-              <button onclick="editUser('${docSnap.id}')">Edit</button>
-              <button onclick="deleteUser('${docSnap.id}')">Delete</button>
-            </td>
-          `;
-          usersTableBody.appendChild(tr);
-        });
-      } catch (error) {
-        showMessage("Error loading users: " + error.message, "error");
-      }
-    }
-
-    function showMessage(msg, type) {
-      messageDiv.textContent = msg;
-      messageDiv.className = type;
-      setTimeout(() => {
-        messageDiv.textContent = "";
-        messageDiv.className = "";
-      }, 4000);
-    }
-
-    addUserForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const id = userIdInput.value;
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value.trim();
-      const expiryDate = expiryDateInput.value;
-      const deviceLimit = deviceLimitInput.value;
-
-      if (!username || !password || !expiryDate || !deviceLimit) {
-        showMessage("সব তথ্য পূরণ করুন", "error");
-        return;
-      }
-
-      try {
-        if (id) {
-          // Update user document (password cannot be updated here)
-          await updateDoc(doc(db, "users", id), {
-            username,
-            expiryDate,
-            deviceLimit
-          });
-          showMessage("User updated successfully", "success");
-          addUserForm.reset();
-          userIdInput.value = "";
-        } else {
-          // Create new user document
-          // Note: Password is saved in Firestore, NOT Firebase Auth
-          await setDoc(doc(db, "users", username), {
-            username,
-            password,
-            expiryDate,
-            deviceLimit
-          });
-          showMessage("User added successfully", "success");
-          addUserForm.reset();
-        }
-        loadUsers();
-      } catch (error) {
-        showMessage("Error: " + error.message, "error");
-      }
-    });
-
-    window.editUser = async function(id) {
-      try {
-        const docSnap = await getDocs(doc(db, "users", id));
-        if (docSnap.exists()) {
-          const user = docSnap.data();
-          userIdInput.value = id;
-          usernameInput.value = user.username || "";
-          passwordInput.value = user.password || "";
-          expiryDateInput.value = user.expiryDate || "";
-          deviceLimitInput.value = user.deviceLimit || "";
-          document.getElementById("submitBtn").textContent = "Update User";
-        } else {
-          showMessage("User not found", "error");
-        }
-      } catch (error) {
-        showMessage("Error fetching user: " + error.message, "error");
-      }
-    };
-
-    window.deleteUser = async function(id) {
-      if (confirm("Are you sure you want to delete this user?")) {
-        try {
-          await deleteDoc(doc(db, "users", id));
-          showMessage("User deleted successfully", "success");
-          loadUsers();
-        } catch (error) {
-          showMessage("Error deleting user: " + error.message, "error");
-        }
-      }
-    };
-
-    // Initial load
-    loadUsers();
-  </script>
 </head>
 <body>
+
 <header>
-  <h1>x1nx Admin Panel - Dashboard</h1>
-  <button id="logoutBtn">Logout</button>
+  <div class="header-container">
+    <div class="header-title">
+      <i class="fas fa-users-cog"></i>
+      <span>User Management Dashboard</span>
+    </div>
+    <a href="admin.html" class="back-link">
+      <i class="fas fa-arrow-left"></i>
+      <span>Back to Admin</span>
+    </a>
+  </div>
 </header>
 
-<section>
-  <form id="addUserForm">
-    <h2>Add / Edit User</h2>
-    <input type="hidden" id="userId" />
-    <input type="text" id="username" placeholder="Username" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <label for="expiryDate">Expiry Date:</label>
-    <input type="date" id="expiryDate" required />
-    <label for="deviceLimit">Device Limit:</label>
-    <select id="deviceLimit" required>
-      <option value="1">1 Device</option>
-      <option value="unlimited">Unlimited</option>
-    </select>
-    <button type="submit" id="submitBtn">Add User</button>
-  </form>
+<div class="container">
+  <div class="search-section">
+    <div class="search-bar-container">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search users..." oninput="filterUsers()">
+    </div>
+    <div class="stats-card">
+      <h3>Total Users</h3>
+      <p id="totalUsers">0</p>
+    </div>
+  </div>
 
-  <div id="message"></div>
+  <div id="userList">Loading users...</div>
+</div>
 
-  <h2>Users List</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Username</th>
-        <th>Expiry Date</th>
-        <th>Device Limit</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="usersTableBody"></tbody>
-  </table>
-</section>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
+  import { getDatabase, ref, get, update, remove } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-database.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-analytics.js";
+
+  const firebaseConfig = {
+  apiKey: "AIzaSyBPdBMcH7Gyu2w0u5hiTx-1XWHhBLw0Vok",
+  authDomain: "x1nx-modx.firebaseapp.com",
+  databaseURL: "https://x1nx-modx-default-rtdb.firebaseio.com",
+  projectId: "x1nx-modx",
+  storageBucket: "x1nx-modx.firebasestorage.app",
+  messagingSenderId: "739319660068",
+  appId: "1:739319660068:web:235e661ae00ef6f006e2b1",
+  measurementId: "G-QCKV3QTHK5"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getDatabase(app);
+
+  const userListEl = document.getElementById("userList");
+  let allUsers = {};
+
+  const usersRef = ref(db, "userdata");
+  get(usersRef).then((snapshot) => {
+    if (snapshot.exists()) {
+      allUsers = snapshot.val();
+      renderUsers(allUsers);
+      // Update total users count
+      document.getElementById('totalUsers').textContent = Object.keys(allUsers).length;
+    } else {
+      userListEl.innerHTML = "<div class='no-users'>No users found.</div>";
+    }
+  }).catch((error) => {
+    userListEl.innerHTML = "<div class='error'>Error loading users: " + error.message + "</div>";
+  });
+
+  function renderUsers(users) {
+    userListEl.innerHTML = "";
+    Object.entries(users).forEach(([username, user]) => {
+      const userCard = document.createElement("div");
+      userCard.className = "user-card";
+      userCard.innerHTML = `
+        <h3>${username} <span>Registered: ${user.rgtime || 'N/A'}</span></h3>
+        <label>Username</label>
+        <input type="text" value="${username}" disabled>
+        <label>Password</label>
+        <div class="password-container">
+          <input type="password" id="password-${username}" value="${user.password || ''}">
+          <button class="toggle-password" onclick="togglePasswordVisibility('password-${username}', this)">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+        <label>Status</label>
+        <select id="status-${username}">
+          <option value="active" ${user.status === 'active' ? 'selected' : ''}>Active</option>
+          <option value="inactive" ${user.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+        </select>
+        <label>Valid Until</label>
+        <input type="text" id="validity-${username}" value="${user.validity || ''}">
+        <label>Access</label>
+        <select id="access-${username}">
+          <option value="1" ${user.access === '1' ? 'selected' : ''}>1 Device</option>
+          <option value="∞" ${user.access === '∞' ? 'selected' : ''}>∞ Devices</option>
+        </select>
+        <button class="btn-primary" onclick="updateUser('${username}')">Update</button>
+        <button class="btn-danger" onclick="deleteUser('${username}')">Delete</button>
+      `;
+      userListEl.appendChild(userCard);
+    });
+  }
+
+  window.togglePasswordVisibility = function(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector("i");
+    if (input.type === "password") {
+      input.type = "text";
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
+    } else {
+      input.type = "password";
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    }
+  };
+
+  window.updateUser = function(username) {
+    const password = document.getElementById(`password-${username}`).value;
+    const status = document.getElementById(`status-${username}`).value;
+    const validity = document.getElementById(`validity-${username}`).value;
+    const access = document.getElementById(`access-${username}`).value;
+
+    update(ref(db, `userdata/${username}`), {
+      password,
+      status,
+      validity,
+      access
+    }).then(() => {
+      alert(`User ${username} updated successfully!`);
+    }).catch((error) => {
+      alert("Error updating user: " + error.message);
+    });
+  };
+
+  window.deleteUser = function(username) {
+    if (confirm(`Are you sure you want to delete ${username}?`)) {
+      remove(ref(db, `userdata/${username}`)).then(() => {
+        alert(`User ${username} deleted successfully!`);
+        delete allUsers[username];
+        renderUsers(allUsers);
+        document.getElementById('totalUsers').textContent = Object.keys(allUsers).length;
+      }).catch((error) => {
+        alert("Error deleting user: " + error.message);
+      });
+    }
+  };
+
+  window.filterUsers = function() {
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const filtered = {};
+    for (let key in allUsers) {
+      if (key.toLowerCase().includes(search)) {
+        filtered[key] = allUsers[key];
+      }
+    }
+    renderUsers(filtered);
+    document.getElementById('totalUsers').textContent = Object.keys(filtered).length;
+  };
+</script>
+
 </body>
 </html>
