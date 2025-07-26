@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>x1nx Admin Panel</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+  <div class="container py-5">
+    <h2 class="text-center mb-4">📋 x1nx Admin Panel</h2>
+    <form id="userForm" class="row g-3">
+      <div class="col-md-4">
+        <input type="text" class="form-control" id="username" placeholder="Username" required>
+      </div>
+      <div class="col-md-4">
+        <input type="text" class="form-control" id="password" placeholder="Password" required>
+      </div>
+      <div class="col-md-2">
+        <input type="date" class="form-control" id="expiry" required>
+      </div>
+      <div class="col-md-2">
+        <select id="deviceLimit" class="form-select">
+          <option value="1">1 Device</option>
+          <option value="unlimited">Unlimited</option>
+        </select>
+      </div>
+      <div class="col-12 text-center">
+        <button type="submit" class="btn btn-success">Add User</button>
+      </div>
+    </form><hr class="my-5">
+<h4>📃 All Users</h4>
+<table class="table table-bordered table-dark table-striped mt-3">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Password</th>
+      <th>Expiry</th>
+      <th>Device Limit</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="userTableBody"></tbody>
+</table>
+
+  </div>  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBpK8WZ1-8JdCTyVm4qZymS9flqGgF9Kc8",
+      authDomain: "x1nx-admin-page.firebaseapp.com",
+      projectId: "x1nx-admin-page",
+      storageBucket: "x1nx-admin-page.appspot.com",
+      messagingSenderId: "541321033814",
+      appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const userForm = document.getElementById('userForm');
+    const userTableBody = document.getElementById('userTableBody');
+
+    // Add user
+    userForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const expiry = document.getElementById('expiry').value;
+      const deviceLimit = document.getElementById('deviceLimit').value;
+
+      if (!username || !password || !expiry) return alert('Fill all fields');
+
+      await db.collection('users').doc(username).set({
+        username,
+        password,
+        expiry,
+        deviceLimit
+      });
+
+      userForm.reset();
+      loadUsers();
+    });
+
+    // Load users
+    async function loadUsers() {
+      const snapshot = await db.collection('users').get();
+      userTableBody.innerHTML = '';
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const row = `
+          <tr>
+            <td>${data.username}</td>
+            <td>${data.password}</td>
+            <td>${data.expiry}</td>
+            <td>${data.deviceLimit}</td>
+            <td>
+              <button class="btn btn-danger btn-sm" onclick="deleteUser('${data.username}')">Delete</button>
+            </td>
+          </tr>`;
+        userTableBody.innerHTML += row;
+      });
+    }
+
+    // Delete user
+    async function deleteUser(username) {
+      if (confirm('Are you sure to delete ' + username + '?')) {
+        await db.collection('users').doc(username).delete();
+        loadUsers();
+      }
+    }
+
+    window.onload = loadUsers;
+  </script></body>
+</html>

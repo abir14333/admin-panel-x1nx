@@ -1,0 +1,47 @@
+<!-- x1nx Admin Panel: index.html (Login Page) --><!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>x1nx Admin Panel - Login</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbPMyrdTObOze78aM9G9tetqBCVjIqx6g",
+      authDomain: "x1nxadminpage.firebaseapp.com",
+      projectId: "x1nxadminpage",
+      storageBucket: "x1nxadminpage.appspot.com",
+      messagingSenderId: "541321033814",
+      appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <style>
+    body { font-family: sans-serif; background: #1a1a1a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .login-box { background: #333; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px #000; }
+    input { display: block; margin: 10px 0; padding: 10px; width: 100%; }
+    button { background: #00c853; color: white; border: none; padding: 10px 20px; cursor: pointer; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>x1nx Admin Login</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p id="error" style="color:red;"></p>
+  </div>
+  <script>
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        await firebase.auth().signInWithEmailAndPassword(email, password);
+        location.href = "dashboard.html";
+      } catch (e) {
+        document.getElementById('error').innerText = e.message;
+      }
+    }
+  </script>
+</body>
+</html><!-- dashboard.html will be created next with: Dashboard, Add/Edit/Delete User -->
