@@ -1,47 +1,100 @@
-<!-- x1nx Admin Panel: index.html (Login Page) --><!DOCTYPE html><html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>x1nx Admin Panel - Login</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBbPMyrdTObOze78aM9G9tetqBCVjIqx6g",
-      authDomain: "x1nxadminpage.firebaseapp.com",
-      projectId: "x1nxadminpage",
-      storageBucket: "x1nxadminpage.appspot.com",
-      messagingSenderId: "541321033814",
-      appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
-  <style>
-    body { font-family: sans-serif; background: #1a1a1a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    .login-box { background: #333; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px #000; }
-    input { display: block; margin: 10px 0; padding: 10px; width: 100%; }
-    button { background: #00c853; color: white; border: none; padding: 10px 20px; cursor: pointer; width: 100%; }
-  </style>
-</head>
-<body>
-  <div class="login-box">
-    <h2>x1nx Admin Login</h2>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <p id="error" style="color:red;"></p>
-  </div>
-  <script>
-    async function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      try {
-        await firebase.auth().signInWithEmailAndPassword(email, password);
-        location.href = "dashboard.html";
-      } catch (e) {
-        document.getElementById('error').innerText = e.message;
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Admin Login - X1NX Injector</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #121212;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
       }
-    }
-  </script>
-</body>
-</html><!-- dashboard.html will be created next with: Dashboard, Add/Edit/Delete User -->
+
+      .login-box {
+        background-color: #1e1e1e;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #00ffcc;
+        width: 300px;
+      }
+
+      .login-box h2 {
+        text-align: center;
+        color: #00ffcc;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        border: none;
+        border-radius: 5px;
+      }
+
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: #00ffcc;
+        color: black;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #00cc99;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-box">
+      <h2>X1NX Admin Login</h2>
+      <input type="email" id="email" placeholder="Admin Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+    </div>
+
+    <!-- ✅ Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+    <!-- ✅ Firebase Config -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyDKa0ZuGm2nEVaKxIXG7BeBaMZ7cAX8K_E",
+        authDomain: "x1nx-admin-page.firebaseapp.com",
+        projectId: "x1nx-admin-page",
+        storageBucket: "x1nx-admin-page.appspot.com",
+        messagingSenderId: "541321033814",
+        appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <!-- ✅ Login Script -->
+    <script>
+      function login() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        firebase.auth().signInWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            window.location.href = "dashboard.html";
+          })
+          .catch((error) => {
+            alert("Login Failed: " + error.message);
+          });
+      }
+    </script>
+  </body>
+</html>
