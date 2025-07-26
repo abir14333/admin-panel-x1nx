@@ -1,116 +1,290 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>x1nx Admin Panel</title>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>x1nx Admin Panel - Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    button {
+      background-color: #00c853;
+      border: none;
+      color: black;
+      padding: 10px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #00e676;
+    }
+    form {
+      background-color: #222;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 30px;
+      max-width: 400px;
+    }
+    form input, form select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 4px;
+      border: none;
+      font-size: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #444;
+      text-align: left;
+    }
+    tr:hover {
+      background-color: #333;
+    }
+    .actions button {
+      margin-right: 10px;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+    .error, .success {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .error {
+      background-color: #e53935;
+      color: white;
+    }
+    .success {
+      background-color: #4caf50;
+      color: white;
+    }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
 </head>
-<body class="bg-dark text-light">
-  <div class="container py-5">
-    <h2 class="text-center mb-4">📋 x1nx Admin Panel</h2>
-    <form id="userForm" class="row g-3">
-      <div class="col-md-4">
-        <input type="text" class="form-control" id="username" placeholder="Username" required>
-      </div>
-      <div class="col-md-4">
-        <input type="text" class="form-control" id="password" placeholder="Password" required>
-      </div>
-      <div class="col-md-2">
-        <input type="date" class="form-control" id="expiry" required>
-      </div>
-      <div class="col-md-2">
-        <select id="deviceLimit" class="form-select">
-          <option value="1">1 Device</option>
-          <option value="unlimited">Unlimited</option>
-        </select>
-      </div>
-      <div class="col-12 text-center">
-        <button type="submit" class="btn btn-success">Add User</button>
-      </div>
-    </form><hr class="my-5">
-<h4>📃 All Users</h4>
-<table class="table table-bordered table-dark table-striped mt-3">
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Password</th>
-      <th>Expiry</th>
-      <th>Device Limit</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody id="userTableBody"></tbody>
-</table>
+<body>
 
-  </div>  <script>
-    // Firebase Config
-    const firebaseConfig = {
-      apiKey: "AIzaSyBpK8WZ1-8JdCTyVm4qZymS9flqGgF9Kc8",
-      authDomain: "x1nx-admin-page.firebaseapp.com",
-      projectId: "x1nx-admin-page",
-      storageBucket: "x1nx-admin-page.appspot.com",
-      messagingSenderId: "541321033814",
-      appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
-    };
+<header>
+  <h1>x1nx Admin Panel - Dashboard</h1>
+  <button id="logoutBtn">Logout</button>
+</header>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+<section>
+  <form id="addUserForm">
+    <h2>Add / Edit User</h2>
+    <input type="hidden" id="userId" />
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <label for="expiryDate">Expiry Date:</label>
+    <input type="date" id="expiryDate" required />
+    <label for="deviceLimit">Device Limit:</label>
+    <select id="deviceLimit" required>
+      <option value="1">1 Device</option>
+      <option value="unlimited">Unlimited</option>
+    </select>
+    <button type="submit" id="submitBtn">Add User</button>
+  </form>
 
-    const userForm = document.getElementById('userForm');
-    const userTableBody = document.getElementById('userTableBody');
+  <div id="message"></div>
 
-    // Add user
-    userForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const expiry = document.getElementById('expiry').value;
-      const deviceLimit = document.getElementById('deviceLimit').value;
+  <h2>Users List</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Expiry Date</th>
+        <th>Device Limit</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="usersTableBody"></tbody>
+  </table>
+</section>
 
-      if (!username || !password || !expiry) return alert('Fill all fields');
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBvUY6RwKe7oHxg_hFzO3pX8PYbHwsvFgQ",
+    authDomain: "x1nx-admin-page.firebaseapp.com",
+    projectId: "x1nx-admin-page",
+    storageBucket: "x1nx-admin-page.appspot.com",
+    messagingSenderId: "541321033814",
+    appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
+  };
 
-      await db.collection('users').doc(username).set({
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  const addUserForm = document.getElementById("addUserForm");
+  const userIdInput = document.getElementById("userId");
+  const usernameInput = document.getElementById("username");
+  const passwordInput = document.getElementById("password");
+  const expiryDateInput = document.getElementById("expiryDate");
+  const deviceLimitInput = document.getElementById("deviceLimit");
+  const messageDiv = document.getElementById("message");
+  const usersTableBody = document.getElementById("usersTableBody");
+  const submitBtn = document.getElementById("submitBtn");
+
+  // Redirect if not logged in
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = "index.html";
+    }
+  });
+
+  logoutBtn.addEventListener("click", () => {
+    auth.signOut().then(() => {
+      window.location.href = "index.html";
+    });
+  });
+
+  // Load users from Firestore
+  function loadUsers() {
+    usersTableBody.innerHTML = "";
+    db.collection("users").get()
+      .then(snapshot => {
+        snapshot.forEach(doc => {
+          const user = doc.data();
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td>${user.username || ""}</td>
+            <td>${user.expiryDate || ""}</td>
+            <td>${user.deviceLimit || ""}</td>
+            <td class="actions">
+              <button onclick="editUser('${doc.id}')">Edit</button>
+              <button onclick="deleteUser('${doc.id}')">Delete</button>
+            </td>
+          `;
+          usersTableBody.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        showMessage("Error loading users: " + err.message, "error");
+      });
+  }
+
+  // Show messages
+  function showMessage(msg, type) {
+    messageDiv.textContent = msg;
+    messageDiv.className = type === "error" ? "error" : "success";
+    setTimeout(() => {
+      messageDiv.textContent = "";
+      messageDiv.className = "";
+    }, 4000);
+  }
+
+  // Add or update user
+  addUserForm.addEventListener("submit", e => {
+    e.preventDefault();
+
+    const id = userIdInput.value;
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+    const expiryDate = expiryDateInput.value;
+    const deviceLimit = deviceLimitInput.value;
+
+    if (!username || !password || !expiryDate || !deviceLimit) {
+      showMessage("Please fill all fields", "error");
+      return;
+    }
+
+    if (id) {
+      // Update user in Firestore only (password update not handled here)
+      db.collection("users").doc(id).update({
+        username,
+        expiryDate,
+        deviceLimit
+      }).then(() => {
+        showMessage("User updated successfully", "success");
+        addUserForm.reset();
+        userIdInput.value = "";
+        submitBtn.textContent = "Add User";
+        loadUsers();
+      }).catch(err => {
+        showMessage("Error updating user: " + err.message, "error");
+      });
+    } else {
+      // Add new user to Firestore
+      // Password is saved here for injector login purpose (not Firebase Auth password)
+      db.collection("users").add({
         username,
         password,
-        expiry,
+        expiryDate,
         deviceLimit
-      });
-
-      userForm.reset();
-      loadUsers();
-    });
-
-    // Load users
-    async function loadUsers() {
-      const snapshot = await db.collection('users').get();
-      userTableBody.innerHTML = '';
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const row = `
-          <tr>
-            <td>${data.username}</td>
-            <td>${data.password}</td>
-            <td>${data.expiry}</td>
-            <td>${data.deviceLimit}</td>
-            <td>
-              <button class="btn btn-danger btn-sm" onclick="deleteUser('${data.username}')">Delete</button>
-            </td>
-          </tr>`;
-        userTableBody.innerHTML += row;
-      });
-    }
-
-    // Delete user
-    async function deleteUser(username) {
-      if (confirm('Are you sure to delete ' + username + '?')) {
-        await db.collection('users').doc(username).delete();
+      }).then(() => {
+        showMessage("User added successfully", "success");
+        addUserForm.reset();
         loadUsers();
-      }
+      }).catch(err => {
+        showMessage("Error adding user: " + err.message, "error");
+      });
     }
+  });
 
-    window.onload = loadUsers;
-  </script></body>
+  // Edit user
+  function editUser(id) {
+    db.collection("users").doc(id).get()
+      .then(doc => {
+        if (doc.exists) {
+          const user = doc.data();
+          userIdInput.value = id;
+          usernameInput.value = user.username || "";
+          passwordInput.value = user.password || "";
+          expiryDateInput.value = user.expiryDate || "";
+          deviceLimitInput.value = user.deviceLimit || "1";
+          submitBtn.textContent = "Update User";
+        }
+      })
+      .catch(err => {
+        showMessage("Error fetching user: " + err.message, "error");
+      });
+  }
+
+  // Delete user
+  function deleteUser(id) {
+    if (confirm("Are you sure you want to delete this user?")) {
+      db.collection("users").doc(id).delete()
+        .then(() => {
+          showMessage("User deleted successfully", "success");
+          loadUsers();
+        })
+        .catch(err => {
+          showMessage("Error deleting user: " + err.message, "error");
+        });
+    }
+  }
+
+  // Initial load users
+  loadUsers();
+</script>
+
+</body>
 </html>

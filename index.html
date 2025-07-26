@@ -1,100 +1,105 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Admin Login - X1NX Injector</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #121212;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        margin: 0;
-      }
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>x1nx Admin Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-box {
+      background-color: #1e1e1e;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00ffcc;
+      width: 320px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 15px 0;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #00ffcc;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    button:hover {
+      background-color: #00cc99;
+    }
+    #error-msg {
+      color: #ff5555;
+      margin-top: 10px;
+      height: 18px;
+    }
+  </style>
+</head>
+<body>
 
-      .login-box {
-        background-color: #1e1e1e;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px #00ffcc;
-        width: 300px;
-      }
+<div class="login-box">
+  <h2>x1nx Admin Login</h2>
+  <input type="email" id="email" placeholder="Admin Email" required />
+  <input type="password" id="password" placeholder="Password" required />
+  <button onclick="login()">Login</button>
+  <div id="error-msg"></div>
+</div>
 
-      .login-box h2 {
-        text-align: center;
-        color: #00ffcc;
-      }
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
-      input {
-        width: 100%;
-        padding: 10px;
-        margin-top: 10px;
-        margin-bottom: 20px;
-        border: none;
-        border-radius: 5px;
-      }
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBvUY6RwKe7oHxg_hFzO3pX8PYbHwsvFgQ",
+    authDomain: "x1nx-admin-page.firebaseapp.com",
+    projectId: "x1nx-admin-page",
+    storageBucket: "x1nx-admin-page.appspot.com",
+    messagingSenderId: "541321033814",
+    appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
+  };
 
-      button {
-        width: 100%;
-        padding: 10px;
-        background-color: #00ffcc;
-        color: black;
-        font-weight: bold;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
 
-      button:hover {
-        background-color: #00cc99;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="login-box">
-      <h2>X1NX Admin Login</h2>
-      <input type="email" id="email" placeholder="Admin Email" />
-      <input type="password" id="password" placeholder="Password" />
-      <button onclick="login()">Login</button>
-    </div>
+  function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
-    <!-- ✅ Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    const errorMsg = document.getElementById("error-msg");
+    errorMsg.textContent = "";
 
-    <!-- ✅ Firebase Config -->
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyDKa0ZuGm2nEVaKxIXG7BeBaMZ7cAX8K_E",
-        authDomain: "x1nx-admin-page.firebaseapp.com",
-        projectId: "x1nx-admin-page",
-        storageBucket: "x1nx-admin-page.appspot.com",
-        messagingSenderId: "541321033814",
-        appId: "1:541321033814:web:9ca1113d9f90fd7fbd23f7"
-      };
+    if (!email || !password) {
+      errorMsg.textContent = "Email and Password are required!";
+      return;
+    }
 
-      firebase.initializeApp(firebaseConfig);
-    </script>
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => {
+        window.location.href = "dashboard.html";
+      })
+      .catch(error => {
+        errorMsg.textContent = "Login Failed: " + error.message;
+      });
+  }
+</script>
 
-    <!-- ✅ Login Script -->
-    <script>
-      function login() {
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-
-        firebase.auth().signInWithEmailAndPassword(email, password)
-          .then((userCredential) => {
-            window.location.href = "dashboard.html";
-          })
-          .catch((error) => {
-            alert("Login Failed: " + error.message);
-          });
-      }
-    </script>
-  </body>
+</body>
 </html>
